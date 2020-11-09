@@ -1,31 +1,17 @@
-# allow access to directory
-# import csv file
-# READ list of x y coordinates from csv file
-# then put them into a list representing each value for each column
-# then iterate with for loop, read directly the points/ values stored in this list
-
-# define and initialise geometry parent class
-# define point child class as x y
-# define a line child class as two points
-
-# create a polygon object from the coordinates- construct in clockwise order down list
-# get the minimum and maximum x and y coordinate points of polygon
-# calculate the minimum bounding rectangle for the polygon
-
-# categorise points as "in" "out" or "boundary" - implementing Minimum bounding rectangle MBR
-# if coordinate "out" of MBR, then it is definitely outside of polygon
-# else if points are "in" or "boundary" of MBR, then implement RCA
-# implement RCA (ray casting algorithm)
-# categorise points again
-# plot the polygon and point
-# READ data from file into list
-# fr each item in list (use for because we know how many times we need to iterate)
-# split each item string and assign parts to
-
-
-# Point in Polygon Test
-
-import os
+""" with open("csv, 'r' as f:
+    my list = f.read().splitlines()
+    print(mylist)
+    x_data = []
+    y_data = []
+    for line in mylist:
+    x = line.rstrip().split(",")[1]
+    print("testingx", x)
+    y = line.rstrip().split(",")[2]
+    print("testingy", y)
+    x_data.append(x)
+    y_data.append(y)
+    print(x_data)
+    print(y_data)"""
 
 def coordinate_reader(csv):
     with open(csv, 'r') as f:
@@ -38,13 +24,20 @@ def coordinate_reader(csv):
             print("x", getx)
             gety = point.get_y()
             print("y", gety)
- # return coordinates
 
 
-class Point():
-    def __init__(self, x, y):
+class Geometry:
+    def __init__(self, name):
+        self.__name = name
+
+    def get_name(self):
+        return self.__name
+
+
+class Point(Geometry):
+    def __init__(self, name, x, y):
         # call super to construct the parent
-        # super().__init__(name)
+        super().__init__(name)
         self.__x = x
         self.__y = y
     # gain access to x and y private attributes
@@ -54,58 +47,113 @@ class Point():
     def get_y(self):
         return self.__y
 
+    """def set_x(self, value):
+        self.__x += value
+    
+    def set_y(self, value):
+        self.__y(self, value):"""
+
+
+class Line(Geometry):
+    """so to make the polygon, join the lines from p1-p2, p2-p3 etc. clockwise"""
+    """making a polygon of 3+ numbers in order, therefore, create a list to use data structures that support sequences"""
+    def __init__(self, name, point_1, point_2):
+        super().__init__(name)
+        self.__point_1 = point_1
+        self.__point_2 = point_2
+
+def get_point_1(self):
+    return self.__point_1
+
+def get_point_2(self):
+    return self__point_2
+
+"""def slope(self):
+    a = self.__point_1
+    b = self.__point_2
+    slope = (b.get_y() - a.get_y())/ (b.get_x90 - a.get_x())
+    return slope"""
+
+
+class Polygon(Geometry):
+    
+    def __init__(self, name, points):
+            super().__init__(name)
+            self.__points = points
+    
+    def get_points(self):
+        return self.__points
+    # iterate across pairs of points to make lines which form the polygon, will loop around the points to generate a list of lines that are then returned by the method line
+    def lines(self):
+        res = []
+        points = self.get_points()
+        point_a = points[0]
+        for point_b in points[1:]:
+            res.append(Line(point_a.get_name() + '-' + point_b.get_name(), point_a, point_b))
+            point_a = point_b
+            res.append(Line(point_a.get_name() + '-' + points[0].get_name(), point_a, points[0]))
+            return res
+
+
+class Mbr(Polygon):
+
+    def __init__(self, name):
+        super().__init__(name)
+
+    def min(self, coord_list):
+        coord_min = coord_list[0]          
+        for min in coord_list[1:]:
+            if min < coord_min:
+                coord_min = min
+                return coord_min
+
+    def max(self, coord_list):               
+        coord_max = coord_list[0]
+        for max in coord_list[1:]:
+            if max > coord_max:
+                coord_max = max
+                return coord_max
+    
+    def area(self, x_list, y_list):
+        x_min = self.min(x_list)
+        x_max = self.max(x_list)
+        y_min = self.min(y_list)
+        y_max = self.max(y_list)
+        res = ((x_max - x_min) * (y_min - y_max))
+        return res
+
+
+
+class CategoryMbr(Mbr):
+    
+    
+
 
 
 def main():
+    import os
+    import matplotlib
+
     test = coordinate_reader("/Users/emilybirch/Documents/UCL/Programming/point_in_polygon_test/polygon.csv")
     print(test)
+
+    test = coordinate_reader(input.csv)
+
 
 
 if __name__ == "__main__":
     main()
 
 
-"""
-
-class Geometry:
-
-def __init__(self, name):
-    self.__name = name
-
-def get_name(self):
-    return self.__name
 
 
-class Line(Geometry):
-# so to make the polygon, join the lines from p1-p2, p2-p3 etc. clockwise
-# making a polygon of 3+ numbers in order, therefore, create a list to use data structures that support sequences
-def __init__(self, name, point_1, point_2):
-    super().__init__(name)
-    self.__point_1 = point_1
-    self.__point_2 = point_2
 
 
-class Polygon(Geometry):
-
-def __init__(self, name, points):
-    super().__init__(name)
-    self.__points = points
-
-def get_points(self):
-    return self.__points
-# iterate across pairs of points to make lines which form the polygon, will loop around the points to generate a list of lines that are then returned by the method line
-def lines(self):
-    res = []
-    points = self.get_points()
-    point_a = points[0]
-    for point_b in points[1:]:
-        res.append(Line(point_a.get_name() + '-' + point_b.get_name(), point_a, point_b))
-        point_a = point_b
-        res.append(Line(point_a.get_name() + '-' + points[0].get_name(), point_a, points[0]))
-        return res
 
 
-class MBR(Polygon):
+
+
+"""class MBR(Polygon):
     # initialise the class polygon, parse name and list of points
     def__init__(self, name, point_1, point_2)
         super().__init__(name, [point_1, point_2])
@@ -138,10 +186,6 @@ class MBR(Polygon):
                 return res
 
 
-
-
-class Categorisation(MBR)
-
-"""
+class Categorisation(MBR)"""
 
 
