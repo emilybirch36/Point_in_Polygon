@@ -1,5 +1,12 @@
 import os
+import sys
+from collections import OrderedDict
+"""
+import matplotlib
+import matplotlib.pyplot as plt
 
+matplotlib.use('TkAgg')
+"""
 
 def main():
     # Call the read file function to get the x list by passing in index 1
@@ -18,7 +25,7 @@ def main():
     print("inputcsv_y", y_list_input)
 
     cat = Category(x_list, y_list, x_list_input, y_list_input)
-    cate = cat.categorise(point)
+    cate = cat.inside_mbr(point)
     print("catee", cate)
     x_min = mbr.min(x_list)
     x_max = mbr.max(x_list)
@@ -50,6 +57,43 @@ def main():
     # initialise
     point = Point(x_list, y_list)
 
+
+ # to test the RCA algorithm
+
+   # q = Polygon(Point(get_x, get_y))
+   # categ = Category()
+   # lis_ans = categ.categorise(.....)
+
+
+
+  #  for i in inside_mbr_list?
+    ##    contains
+   # print "inside", "outside"
+
+
+
+
+"""
+     # Test 1: Point inside of polygon
+    p1 = Point(75, 50);
+    print
+    "P1 inside polygon: " + str(q.contains(p1))
+
+    # Test 2: Point outside of polygon
+    p2 = Point(200, 50)
+    print
+    "P2 inside polygon: " + str(q.contains(p2))
+
+    # Test 3: Point at same height as vertex
+    p3 = Point(35, 90)
+    print
+    "P3 inside polygon: " + str(q.contains(p3))
+
+    # Test 4: Point on bottom line of polygon
+    p4 = Point(50, 10)
+    print
+    "P4 inside polygon: " + str(q.contains(p4))
+"""
 
 def read_file(index, csv):
     # read in the absolute file path
@@ -136,6 +180,53 @@ class Polygon(Point):
             res.append(Line(point_a, points[0]))
             return res
 
+    # _infinity represents infinity if we divide by 0
+    # _eps is used to make sure points are not on the same line as vertexes
+    def contains(self, point):
+        _infinity = sys.float_info.max
+        _eps = 0.00001
+
+        # starting on outside of polygon
+        # initialise boolean variable "inside" which will be toggled each time we find an edge the ray intersects
+        # initialise inside to false so that the final value of "inside" will be true if P (point) is inside Q (polygon) and vice versa
+        # Make sure A is the lower point of the edge
+        inside = False
+        for edge in self.lines():
+            a = edge.get_point_1()
+            b = edge.get_point_2()
+            if a.get_y() > b.get_y():
+                a, b = b, a
+
+        # Make sure point is not at the same height as vertex
+            if point.get_y() == a.get_y() or point.get_y() == b.get_y():
+                point.y(_eps)
+
+        # The horizontal ray does not intersect with the edge
+            if (point.get_y() > b.get_y or point.get_y() < a.get_y() or point.get_x() > max(a.get_x(), a.get_x())):
+                continue
+
+        # the ray intersects the edge
+            if point.get_x() <= min(a.get_x(), b.get_get_x()):
+                inside = not inside
+                continue
+
+            try:
+                m_edge = (b.get_y() - a.get_y()) / (b.get_x() - a.get_x())
+            except ZeroDivisionError:
+                m_edge = _infinity
+
+            try:
+                m_point = (point.get_y() - a.get_y()) / (point.get_x() - a.get_x())
+            except ZeroDivisionError:
+                m_point = _infinity
+
+            # The ray intersects with the edge
+            if m_point >= m_edge:
+                inside = not inside
+                continue
+
+        return inside
+
 
 class Mbr(Point):
 
@@ -160,7 +251,7 @@ class Mbr(Point):
 
 class Category(Mbr):
     def __init__(self, x, y, x_input, y_input):
-        super().__init__(x, y)
+        super().__init__(x_input, y_input)
         self.point = Point(x, y)
         self.mbr = Mbr(x, y)
         self.x_input = x_input
@@ -168,7 +259,7 @@ class Category(Mbr):
 
     # just need to make it a point object then use the getters
 
-    def categorise(self, point):
+    def inside_mbr(self, point):
 
         result = []
         x_min = float(self.mbr.min(self.point.get_x()))
@@ -181,11 +272,35 @@ class Category(Mbr):
         for i in range(len(self.x_input)):
             if float(self.x_input[i]) >= x_min and float(self.x_input[i]) <= x_max and float(
                     self.y_input[i]) <= y_max and float(self.y_input[i]) >= y_min:
-                result.append("inside_mbr")
-            else:
-                result.append("outside_mbr")
+                result.append(self.x_input[i] + "," + self.y_input[i])
         print("RESULT", result)
         return result
+
+
+class Plotter:
+
+    def __init__(self):
+        plt.figure()
+
+    def add_polygon(self, xs, ys):
+        plt.fill(xs, ys, 'lightgray', label='Polygon')
+
+    def add_point(self, x, y, kind=None):
+        if kind == "outside":
+            plt.plot(x, y, "ro", label='Outside')
+        elif kind == "boundary":
+            plt.plot(x, y, "bo", label='Boundary')
+        elif kind == "inside":
+            plt.plot(x, y, "go", label='Inside')
+        else:
+            plt.plot(x, y, "ko", label='Unclassified')
+
+    def show(self):
+        handles, labels = plt.gca().get_legend_handles_labels()
+        by_label = OrderedDict(zip(labels, handles))
+        plt.legend(by_label.values(), by_label.keys())
+        plt.show()
+
 
 
 if __name__ == "__main__":
